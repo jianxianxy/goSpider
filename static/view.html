@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>List</title>
+</head>
+<body>
+<div>
+{{range .info}}
+<div>{{ . }}</div>
+{{end}}
+</div>
+{{range $k,$v := .body}}
+<div><a target="_blank" href="{{$v}}">{{$k}}</a></div>
+{{end}}
+</body>
+</html>
