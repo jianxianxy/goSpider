@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
 //获取URL内容
@@ -28,6 +29,13 @@ func GetUrlFromString(body string) map[string]string {
 		}
 	}
 	return mapCatch
+}
+
+//HTMl标签转小写
+func TagToLower(con string) string {
+	reg, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
+	html := reg.ReplaceAllStringFunc(con, strings.ToLower)
+	return html
 }
 
 //删除html中的style样式
@@ -58,6 +66,32 @@ func GetTitle(con string) string {
 //获取html的body
 func GetBody(con string) string {
 	reg, _ := regexp.Compile(`<body[^>]*?>(.*?)<\/body[^>]?>`)
+	match := reg.FindStringSubmatch(con)
+	if len(match) > 1 {
+		return match[1]
+	} else {
+		return ""
+	}
+}
+
+//获取html仅保留div和h1标签的结构
+func GetDivH1(con string) string {
+	reg, _ := regexp.Compile(`<[^>]*?>`)
+	html := reg.ReplaceAllStringFunc(con, func(str string) string {
+		reg, _ := regexp.Compile(`<div|<h1|</div|</h1`)
+		match := reg.MatchString(str)
+		if match {
+			return str
+		} else {
+			return ""
+		}
+	})
+	return html
+}
+
+//获取html的h1
+func GetH1(con string) string {
+	reg, _ := regexp.Compile(`<h1[^>]*?>(.*?)<\/h1[^>]?>`)
 	match := reg.FindStringSubmatch(con)
 	if len(match) > 1 {
 		return match[1]
