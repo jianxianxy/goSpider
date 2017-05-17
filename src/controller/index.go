@@ -24,6 +24,7 @@ func Index(rp http.ResponseWriter, rq *http.Request) {
 func Search(rp http.ResponseWriter, rq *http.Request) {
 	rp.Header().Set("Content-Type", "text/html")
 	val := rq.FormValue("keyword")
+	url := rq.FormValue("url")
 	view, err := template.ParseFiles(config.Get("ROOT_PATH") + "static/view.html")
 	if err != nil {
 		http.Error(rp, err.Error(), http.StatusInternalServerError)
@@ -31,7 +32,10 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 	}
 
 	locals := make(map[string]interface{})
-	body, err := config.GetHtmlByUrl("http://www.baidu.com/s?wd=" + val)
+	if len(url) < 1 {
+		url = "http://www.baidu.com/s?wd=" + val
+	}
+	body, err := config.GetHtmlByUrl(url)
 	if err == nil {
 		locals["body"] = config.GetUrlFromString(body)
 	}
