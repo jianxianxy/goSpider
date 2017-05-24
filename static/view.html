@@ -6,12 +6,8 @@
 </head>
 <body>
 <div>
-{{range .info}}
-<div>{{ . }}</div>
-{{end}}
-</div>
-{{range $k,$v := .body}}
-<div><a target="_blank" href="{{$v}}">{{$k}}</a></div>
+{{range $k,$v := .}}
+<div>{{$k}}@{{$v | html}}</div>
 {{end}}
 </body>
 </html>

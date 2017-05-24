@@ -13,8 +13,9 @@ go install config
 go install controller
 go install lib/mysql
 go install lib/seg
+go install lib/function
 go install main
 
 export GOPATH="$OLDGOPATH"
 
-echo 'finished'
+echo 'success'
