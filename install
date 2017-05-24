@@ -12,6 +12,7 @@ export GOPATH="$CURDIR"
 go install config
 go install controller
 go install lib/mysql
+go install lib/seg
 go install main
 
 export GOPATH="$OLDGOPATH"

@@ -2,7 +2,9 @@ package controller
 
 import (
 	"config"
+	"fmt"
 	"html/template"
+	"lib/seg"
 	"net/http"
 )
 
@@ -39,6 +41,9 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 	if err == nil {
 		locals["body"] = config.GetUrlFromString(body)
 	}
+	//分词
+	plan := seg.SegString(val)
+	fmt.Println(plan)
 
 	locals["info"] = []string{"Query:", val}
 	view.Execute(rp, locals)

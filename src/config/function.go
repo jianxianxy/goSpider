@@ -52,7 +52,7 @@ func StripScript(con string) string {
 	return str
 }
 
-//获取htnl中的title
+//获取html中的title
 func GetTitle(con string) string {
 	reg, _ := regexp.Compile(`<title[^>]*?>(.*?)<\/title[^>]?>`)
 	match := reg.FindStringSubmatch(con)
@@ -74,7 +74,7 @@ func GetBody(con string) string {
 	}
 }
 
-//获取html仅保留div和h1标签的结构
+//获取html仅保留div和h1标签的结构[用于分析正文位置]
 func GetDivH1(con string) string {
 	reg, _ := regexp.Compile(`<[^>]*?>`)
 	html := reg.ReplaceAllStringFunc(con, func(str string) string {
