@@ -10,9 +10,9 @@ import (
 )
 
 var Dict map[string][]string //字典
-var Plan []string            //分词方案
 
 func SegString(str string) []string {
+	var plan []string
 	//加载字典
 	LoadDict()
 	//正序分词
@@ -23,11 +23,11 @@ func SegString(str string) []string {
 	SliceReverse(&planRl)
 	//比较
 	if SliceIsEqual(planLr, planRl) {
-		Plan = planLr
+		plan = planLr
 	} else {
-		Plan = PlanFilter(planLr, planRl)
+		plan = PlanFilter(planLr, planRl)
 	}
-	return Plan
+	return plan
 }
 
 //加载字典
@@ -167,4 +167,14 @@ func PlanFilter(sliL, sliR []string) []string {
 		return sliL
 	}
 	return sliR
+}
+
+//匹配度分析
+func MatchLevel(plan []string, con string) map[string]int {
+	matl := make(map[string]int, 0)
+	for _, val := range plan {
+		num := strings.Count(con, val)
+		matl[val] = num
+	}
+	return matl
 }

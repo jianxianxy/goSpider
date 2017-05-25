@@ -2,7 +2,6 @@ package controller
 
 import (
 	"config"
-	"fmt"
 	"html/template"
 	"lib/function"
 	"lib/seg"
@@ -26,8 +25,9 @@ func Index(rp http.ResponseWriter, rq *http.Request) {
 //搜索
 func Search(rp http.ResponseWriter, rq *http.Request) {
 	rp.Header().Set("Content-Type", "text/html")
-	val := rq.FormValue("keyword")
 	url := rq.FormValue("url")
+	keyword := rq.FormValue("keyword")
+	//设置模版
 	view, err := template.ParseFiles(config.Get("ROOT_PATH") + "static/view.html")
 	if err != nil {
 		http.Error(rp, err.Error(), http.StatusInternalServerError)
@@ -36,7 +36,7 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 
 	locals := make(map[string]interface{})
 	if len(url) < 1 {
-		url = "http://www.baidu.com/s?wd=" + val
+		url = "http://www.baidu.com/s?wd=" + keyword
 	}
 	//获取HTML
 	html, err := function.GetHtmlByUrl(url)
@@ -49,16 +49,20 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 		locals["title"] = function.GetTitle(html)
 		//获取Body
 		body := function.GetBody(function.StripNote(function.StripStyle(function.StripScript(html))))
-		locals["body"] = body
-		//保留div和h1的结构
-		boh1 := function.GetDivH1(body)
 		//获取h1内容(文章标题)
-		locals["conTitle"] = function.GetH1(boh1)
-
+		conTitle := function.GetH1(body)
+		locals["conTitle"] = conTitle
+		//分词
+		if len(conTitle) > 0 {
+			planTitle := seg.SegString(conTitle)
+			locals["conTitleMatch"] = seg.MatchLevel(planTitle, body)
+		}
+		if len(keyword) > 0 {
+			plan := seg.SegString(keyword)
+			locals["plan"] = plan
+			locals["planMatch"] = seg.MatchLevel(plan, body)
+		}
 	}
-	//分词
-	plan := seg.SegString(val)
-	fmt.Println(plan)
 
 	view.Execute(rp, locals)
 }
