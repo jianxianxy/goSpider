@@ -54,33 +54,28 @@ func LoadDict() {
 
 //正序分词
 func GetWordLr(str string, pla []string) []string {
-	sta := 0
 	add := 2
 	strArr := []rune(str)
 	strlen := len(strArr)
+	maxindex := 1
 	var currword string
 	if strlen < 2 {
 		pla = append(pla, str)
 		return pla
 	}
 	for {
-		if sta+add <= strlen {
-			word := strArr[sta:add]
+		if add <= strlen {
+			word := strArr[:add]
 			if _, ok := Dict[string(word)]; ok {
+				maxindex = add
 				currword = string(word)
-				add += 1
-			} else {
-				add -= 1
-				if add == 1 {
-					word := strArr[sta:add]
-					currword = string(word)
-				}
-				pla = append(pla, currword)
-				pla = GetWordLr(string(strArr[sta+add:]), pla)
-				break
 			}
+			add += 1
 		} else {
+			word := strArr[:maxindex]
+			currword = string(word)
 			pla = append(pla, currword)
+			pla = GetWordLr(string(strArr[maxindex:]), pla)
 			break
 		}
 	}
@@ -92,6 +87,7 @@ func GetWordRl(str string, pla []string) []string {
 	add := 2
 	strArr := []rune(str)
 	strlen := len(strArr)
+	maxindex := 1
 	var currword string
 	if strlen < 2 {
 		pla = append(pla, str)
@@ -101,20 +97,15 @@ func GetWordRl(str string, pla []string) []string {
 		if strlen-add >= 0 {
 			word := strArr[strlen-add : strlen]
 			if _, ok := Dict[string(word)]; ok {
+				maxindex = add
 				currword = string(word)
-				add += 1
-			} else {
-				add -= 1
-				if add == 1 {
-					word := strArr[strlen-add : strlen]
-					currword = string(word)
-				}
-				pla = append(pla, currword)
-				pla = GetWordRl(string(strArr[:strlen-add]), pla)
-				break
 			}
+			add += 1
 		} else {
+			word := strArr[strlen-maxindex : strlen]
+			currword = string(word)
 			pla = append(pla, currword)
+			pla = GetWordRl(string(strArr[:strlen-maxindex]), pla)
 			break
 		}
 	}
@@ -134,8 +125,12 @@ func SliceIsEqual(sliL, sliR []string) bool {
 	if len(sliL) != len(sliR) {
 		return false
 	}
-	for key, val := range sliL {
-		if val != sliR[key] {
+	mapR := make(map[string]int, 0)
+	for k, v := range sliR {
+		mapR[v] = k
+	}
+	for _, val := range sliL {
+		if _, ok := mapR[val]; !ok {
 			return false
 		}
 	}
