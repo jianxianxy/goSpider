@@ -13,8 +13,6 @@ var Dict map[string][]string //字典
 
 func SegString(str string) []string {
 	var plan []string
-	//加载字典
-	LoadDict()
 	//正序分词
 	planLr := GetWordLr(str, make([]string, 0, 5))
 	//倒序分词
@@ -147,15 +145,19 @@ func PlanFilter(sliL, sliR []string) []string {
 	}
 	var levl, levr int
 	for _, val := range sliL {
-		rate, err := strconv.Atoi(Dict[val][0])
-		if err == nil {
-			levl += rate
+		if dic, ok := Dict[val]; ok && len(dic) > 0 {
+			rate, err := strconv.Atoi(dic[0])
+			if err == nil {
+				levl += rate
+			}
 		}
 	}
 	for _, val := range sliR {
-		rate, err := strconv.Atoi(Dict[val][0])
-		if err == nil {
-			levr += rate
+		if dic, ok := Dict[val]; ok && len(dic) > 0 {
+			rate, err := strconv.Atoi(dic[0])
+			if err == nil {
+				levl += rate
+			}
 		}
 	}
 	if levl > levr {

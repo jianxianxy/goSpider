@@ -7,7 +7,7 @@
 <body>
 <div>
 {{range $k,$v := .}}
-<div>{{$k}}@{{$v | html}}</div>
+<div>{{$k}}<a href="{{$v.Url}}">{{$v.Title}}</a>{{$v.Seg}}</div>
 {{end}}
 </body>
 </html>
