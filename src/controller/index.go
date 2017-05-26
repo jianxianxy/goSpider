@@ -64,11 +64,10 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 			case chret := <-cha:
 				locals = append(locals, chret)
 			case <-timeout.C:
-				goto VI
+				break
 			}
 		}
 	}
-VI:
 	view.Execute(rp, locals)
 }
 
