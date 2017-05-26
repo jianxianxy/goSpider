@@ -48,12 +48,6 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 	}
 	_, href := spider.Exec(url)
 	if len(href) > 0 {
-		//设置超时时间
-		timeout := make(chan bool, 1)
-		go func() {
-			time.Sleep(6e9)
-			timeout <- true
-		}()
 		//加载字典(why is here 节省内存,否则内存会溢出的)
 		seg.LoadDict()
 		//并行计算
@@ -63,16 +57,18 @@ func Search(rp http.ResponseWriter, rq *http.Request) {
 			charr = append(charr, chspi)
 			go goSpider(key, val, chspi)
 		}
+		//设置超时时间
+		timeout := time.NewTicker(15 * time.Second)
 		for _, cha := range charr {
 			select {
 			case chret := <-cha:
 				locals = append(locals, chret)
-			case <-timeout:
-				break
+			case <-timeout.C:
+				goto VI
 			}
 		}
 	}
-
+VI:
 	view.Execute(rp, locals)
 }
 
