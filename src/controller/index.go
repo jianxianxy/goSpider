@@ -34,7 +34,7 @@ func Index(rp http.ResponseWriter, rq *http.Request) {
 func Search(rp http.ResponseWriter, rq *http.Request) {
 	rp.Header().Set("Content-Type", "text/html")
 	url := rq.FormValue("url")
-	keyword := rq.FormValue("keyword")
+	keyword := rq.FormValue("keyword")index.go
 	//设置模版
 	view, err := template.ParseFiles(config.Get("ROOT_PATH") + "static/view.html")
 	if err != nil {

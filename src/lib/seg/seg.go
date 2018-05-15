@@ -123,7 +123,7 @@ func GetWordRl(str string, pla []string) []string {
 
 //字符串根据标点分割成切片
 func SplitByPunc(str string) []string{
-    reg := regexp.MustCompile(`[\pP]+`)
+    reg := regexp.MustCompile(`[\pP\s]+`)
 	spl := reg.Split(str,-1)
     return spl
 }
