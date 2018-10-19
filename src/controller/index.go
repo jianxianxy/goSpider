@@ -1,11 +1,8 @@
 package controller
 
 import (
-	"config"
-	"html/template"
-	"lib/seg"
+	"fmt"
 	"lib/spider"
-	"net/http"
 	"time"
 )
 
@@ -16,66 +13,12 @@ type pageSeg struct {
 	Seg   map[string]int
 }
 
-//首页
-func Index(rp http.ResponseWriter, rq *http.Request) {
-	rp.Header().Set("Content-Type", "text/html")
-	//调用模版
-	view, err := template.ParseFiles(config.Get("ROOT_PATH") + "static/index.html")
-	if err != nil {
-		http.Error(rp, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	locals := make(map[string]interface{})
-	locals["info"] = []string{}
-	view.Execute(rp, locals)
-}
-
 //搜索
-func Search(rp http.ResponseWriter, rq *http.Request) {
-	rp.Header().Set("Content-Type", "text/html")
-	url := rq.FormValue("url")
-	keyword := rq.FormValue("keyword")
-	//设置模版
-	view, err := template.ParseFiles(config.Get("ROOT_PATH") + "static/view.html")
-	if err != nil {
-		http.Error(rp, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	locals := make([]pageSeg, 0)
-	if len(url) < 1 {
-		url = "http://www.baidu.com/s?wd=" + keyword
-	}
+func Search() {
+	b_Time := time.Now()
+	url := "http://www.baidu.com/s?wd="
 	_, href := spider.Exec(url)
-	if len(href) > 0 {
-		//加载字典(why is here 节省内存,否则内存会溢出的)
-		seg.LoadDict()
-		//并行计算
-		var charr []chan pageSeg
-		for key, val := range href {
-			chspi := make(chan pageSeg, 1)
-			charr = append(charr, chspi)
-			go goSpider(key, val, chspi)
-		}
-		//设置超时时间
-		timeout := time.NewTicker(15 * time.Second)
-		for _, cha := range charr {
-			select {
-			case chret := <-cha:
-				locals = append(locals, chret)
-			case <-timeout.C:
-				break
-			}
-		}
-	}
-	view.Execute(rp, locals)
-}
-
-func goSpider(keyword string, url string, ch chan pageSeg) {
-	info, _ := spider.Exec(url)
-	if body, ok := info["body"]; ok {
-		plan := seg.SegString(keyword)
-		match := seg.MatchLevel(plan, body)
-		ch <- pageSeg{Title: keyword, Url: url, Seg: match}
-	}
+	u_Time := time.Since(b_Time)
+	fmt.Println("用时:", u_Time)
+	fmt.Println("内容:", href)
 }

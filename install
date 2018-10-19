@@ -12,11 +12,11 @@ export GOPATH="$CURDIR"
 go install config
 go install controller
 go install lib/mysql
-go install lib/seg
+#go install lib/seg
 go install lib/spider
-go install main
+go build server.go
 
 export GOPATH="$OLDGOPATH"
 
 echo 'Server Start ...'
-./bin/main
+./server

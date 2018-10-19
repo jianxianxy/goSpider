@@ -14,8 +14,9 @@ func Exec(url string) (map[string]string, map[string]string) {
 	href := make(map[string]string)
 	html, err := GetHtmlByUrl(url)
 	if err == nil {
-		html = TagToLower(html)                                   //HTML标签转小写
-		href = GetUrlFromString(html)                             //提取页面的超链接
+		html = TagToLower(html)       //HTML标签转小写
+		href = GetUrlFromString(html) //提取页面的超链接
+
 		body := GetBody(StripNote(StripStyle(StripScript(html)))) //获取Body并去除注释、样式、脚本
 		info["body"] = body
 		title := GetH1(body) //获取h1内容(文章标题)
@@ -89,6 +90,52 @@ func GetBody(con string) string {
 	}
 }
 
+//根据条件匹配
+func FindByIC(con, tag, id, class string) string {
+	html := string([]rune(con))
+	var regStr string
+	if id != "" {
+		regStr = `<` + tag + `[^>]+id[^>]+` + class + `[^>]*>`
+	} else {
+		regStr = `<` + tag + `[^>]+class[^>]+` + class + `[^>]*>`
+	}
+	reg, _ := regexp.Compile(regStr)
+	loc := reg.FindStringIndex(html)
+	loop := len(html)
+	var can = 0
+	for i := loc[1]; i < loop; i++ {
+		if string(html[i]) == "<" && string(html[i+1]) == "/" {
+			beg := i + 2
+			end := beg + len(tag)
+			if end > loop {
+				end = loop
+			}
+			cur := string(html[beg:end])
+			if can == 0 && cur == tag {
+				for ie := end; ie < loop; ie++ {
+					if string(html[ie]) == ">" {
+						return html[loc[0] : ie+1]
+					}
+				}
+			}
+			if cur == tag && can > 0 {
+				can = can - 1
+			}
+		} else if string(html[i]) == "<" {
+			beg := i + 1
+			end := beg + len(tag)
+			if end > loop {
+				end = loop
+			}
+			cur := string(html[beg:end])
+			if cur == tag {
+				can = can + 1
+			}
+		}
+	}
+	return ""
+}
+
 //获取html中的title
 func GetTitle(con string) string {
 	reg, _ := regexp.Compile(`<title[^>]*?>(.*?)<\/title[^>]?>`)
@@ -124,4 +171,15 @@ func GetH1(con string) string {
 	} else {
 		return ""
 	}
+}
+
+//获取html的图片
+func GetImg(con string) []string {
+	reg, _ := regexp.Compile(`<img[^>]*src=["']([^"']*)["'][^>]*>`)
+	ret := make([]string, 0)
+	match := reg.FindAllStringSubmatch(con, -1)
+	for _, v := range match {
+		ret = append(ret, v[1])
+	}
+	return ret
 }
