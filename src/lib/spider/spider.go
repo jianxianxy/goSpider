@@ -2,6 +2,7 @@ package spider
 
 import (
 	"io/ioutil"
+	"lib/mahonia"
 	"net/http"
 	"regexp"
 	"strings"
@@ -91,13 +92,18 @@ func GetBody(con string) string {
 }
 
 //根据条件匹配
-func FindByIC(con, tag, id, class string) string {
+func FindByIC(con, tag, attr string) string {
 	html := string([]rune(con))
+	var model, mval string
+	if attr != "" {
+		model = string([]rune(attr[0:1]))
+		mval = string([]rune(attr[1:]))
+	}
 	var regStr string
-	if id != "" {
-		regStr = `<` + tag + `[^>]+id[^>]+` + id + `[^>]*>`
-	} else if class != "" {
-		regStr = `<` + tag + `[^>]+class[^>]+` + class + `[^>]*>`
+	if model == "#" {
+		regStr = `<` + tag + `[^>]+id[^>]+` + mval + `[^>]*>`
+	} else if model == "." {
+		regStr = `<` + tag + `[^>]+class[^>]+` + mval + `[^>]*>`
 	} else {
 		regStr = `<` + tag + `[^>]*>`
 	}
@@ -142,13 +148,18 @@ func FindByIC(con, tag, id, class string) string {
 }
 
 //根据条件匹配全部
-func FindByICA(con, tag, id, class string, matRet *[]string) int {
+func FindByICA(con, tag, attr string, matRet *[]string) int {
 	html := string([]rune(con))
+	var model, mval string
+	if attr != "" {
+		model = string([]rune(attr[0:1]))
+		mval = string([]rune(attr[1:]))
+	}
 	var regStr string
-	if id != "" {
-		regStr = `<` + tag + `[^>]+id[^>]+` + id + `[^>]*>`
-	} else if class != "" {
-		regStr = `<` + tag + `[^>]+class[^>]+` + class + `[^>]*>`
+	if model == "#" {
+		regStr = `<` + tag + `[^>]+id[^>]+` + mval + `[^>]*>`
+	} else if model == "." {
+		regStr = `<` + tag + `[^>]+class[^>]+` + mval + `[^>]*>`
 	} else {
 		regStr = `<` + tag + `[^>]*>`
 	}
@@ -173,7 +184,7 @@ func FindByICA(con, tag, id, class string, matRet *[]string) int {
 					if string(html[ie]) == ">" {
 						next = ie + 1
 						*matRet = append(*matRet, html[loc[0]:next])
-						FindByICA(string(html[next:]), tag, id, class, matRet)
+						FindByICA(string(html[next:]), tag, attr, matRet)
 						return 1
 					}
 				}
@@ -248,4 +259,20 @@ func GetImg(con string) []string {
 		ret = append(ret, v[1])
 	}
 	return ret
+}
+
+//转码
+func ConvertToString(src string, srcCode string, tagCode string) string {
+	srcCoder := mahonia.NewDecoder(srcCode)
+	srcResult := srcCoder.ConvertString(src)
+	tagCoder := mahonia.NewDecoder(tagCode)
+	_, cdata, _ := tagCoder.Translate([]byte(srcResult), true)
+	result := string(cdata)
+	return result
+}
+
+//去除换行和空格
+func TrimSpace(str string) string {
+	reg, _ := regexp.Compile(`\s`)
+	return reg.ReplaceAllString(str, "")
 }
