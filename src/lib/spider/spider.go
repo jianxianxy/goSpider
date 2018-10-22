@@ -141,7 +141,7 @@ func FindByIC(con, tag, id, class string) string {
 	return ""
 }
 
-//根据条件匹配
+//根据条件匹配全部
 func FindByICA(con, tag, id, class string, matRet *[]string) int {
 	html := string([]rune(con))
 	var regStr string
@@ -196,7 +196,7 @@ func FindByICA(con, tag, id, class string, matRet *[]string) int {
 	return 1
 }
 
-//获取Text
+//获取标签中的文本
 func GetText(html string) string {
 	reg, _ := regexp.Compile(`<[^>]*?>`)
 	return reg.ReplaceAllString(html, "")
