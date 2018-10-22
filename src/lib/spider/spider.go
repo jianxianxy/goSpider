@@ -95,14 +95,19 @@ func FindByIC(con, tag, id, class string) string {
 	html := string([]rune(con))
 	var regStr string
 	if id != "" {
-		regStr = `<` + tag + `[^>]+id[^>]+` + class + `[^>]*>`
-	} else {
+		regStr = `<` + tag + `[^>]+id[^>]+` + id + `[^>]*>`
+	} else if class != "" {
 		regStr = `<` + tag + `[^>]+class[^>]+` + class + `[^>]*>`
+	} else {
+		regStr = `<` + tag + `[^>]*>`
 	}
 	reg, _ := regexp.Compile(regStr)
 	loc := reg.FindStringIndex(html)
+	if len(loc) < 1 {
+		return ""
+	}
 	loop := len(html)
-	var can = 0
+	var can = 0 //内含同名标签标识，等于0才可以截取
 	for i := loc[1]; i < loop; i++ {
 		if string(html[i]) == "<" && string(html[i+1]) == "/" {
 			beg := i + 2
@@ -134,6 +139,67 @@ func FindByIC(con, tag, id, class string) string {
 		}
 	}
 	return ""
+}
+
+//根据条件匹配
+func FindByICA(con, tag, id, class string, matRet *[]string) int {
+	html := string([]rune(con))
+	var regStr string
+	if id != "" {
+		regStr = `<` + tag + `[^>]+id[^>]+` + id + `[^>]*>`
+	} else if class != "" {
+		regStr = `<` + tag + `[^>]+class[^>]+` + class + `[^>]*>`
+	} else {
+		regStr = `<` + tag + `[^>]*>`
+	}
+	reg, _ := regexp.Compile(regStr)
+	loc := reg.FindStringIndex(html)
+	if len(loc) < 1 {
+		return 0
+	}
+	loop := len(html)
+	var can = 0 //内含同名标签标识，等于0才可以截取
+	var next int
+	for i := loc[1]; i < loop; i++ {
+		if string(html[i]) == "<" && string(html[i+1]) == "/" {
+			beg := i + 2
+			end := beg + len(tag)
+			if end > loop {
+				end = loop
+			}
+			cur := string(html[beg:end])
+			if can == 0 && cur == tag {
+				for ie := end; ie < loop; ie++ {
+					if string(html[ie]) == ">" {
+						next = ie + 1
+						*matRet = append(*matRet, html[loc[0]:next])
+						FindByICA(string(html[next:]), tag, id, class, matRet)
+						return 1
+					}
+				}
+			}
+			if cur == tag && can > 0 {
+				can = can - 1
+			}
+		} else if string(html[i]) == "<" {
+			beg := i + 1
+			end := beg + len(tag)
+			if end > loop {
+				end = loop
+			}
+			cur := string(html[beg:end])
+			if cur == tag {
+				can = can + 1
+			}
+		}
+	}
+	return 1
+}
+
+//获取Text
+func GetText(html string) string {
+	reg, _ := regexp.Compile(`<[^>]*?>`)
+	return reg.ReplaceAllString(html, "")
 }
 
 //获取html中的title
