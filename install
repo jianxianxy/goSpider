@@ -11,7 +11,7 @@ export GOPATH="$CURDIR"
 
 go install config
 go install controller
-go install lib/mysql
+go install lib/db
 go install lib/spider
 go install lib/mahonia
 #go install lib/seg
@@ -20,4 +20,4 @@ go build server.go
 export GOPATH="$OLDGOPATH"
 
 echo 'Server Start ...'
-./server
+#./server

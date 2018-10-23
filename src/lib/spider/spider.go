@@ -1,6 +1,8 @@
 package spider
 
 import (
+	"crypto/md5"
+	"fmt"
 	"io/ioutil"
 	"lib/mahonia"
 	"net/http"
@@ -41,7 +43,7 @@ func GetHtmlByUrl(url string) (str string, err error) {
 
 //从字符串中提取超链接
 func GetUrlFromString(body string) map[string]string {
-	reg := regexp.MustCompile(`<a[^>]*?href\s?=\s?['"](http[^'"]*?)['"][^>]*?>([\p{Han}]+.*?)<\/a>`)
+	reg := regexp.MustCompile(`<a[^>]*?href\s?=\s?['"]([^'"]*?)['"][^>]*?>([\p{Han}]*.*?)<\/a>`)
 	match := reg.FindAllStringSubmatch(string(body), -1)
 	mapCatch := make(map[string]string)
 	for _, v := range match {
@@ -50,6 +52,17 @@ func GetUrlFromString(body string) map[string]string {
 		}
 	}
 	return mapCatch
+}
+
+//超链接hash处理
+func HashMap(data map[string]string) map[string]string {
+	retMap := make(map[string]string)
+	for _, v := range data {
+		md5Int := md5.Sum([]byte(v))
+		md5Str := fmt.Sprintf("%x", md5Int)
+		retMap[md5Str] = v
+	}
+	return retMap
 }
 
 //HTMl标签转小写
@@ -275,4 +288,18 @@ func ConvertToString(src string, srcCode string, tagCode string) string {
 func TrimSpace(str string) string {
 	reg, _ := regexp.Compile(`\s`)
 	return reg.ReplaceAllString(str, "")
+}
+
+//字符串中提取int
+func PickInt(str string, index int) string {
+	strint := TrimSpace(str)
+	reg, _ := regexp.Compile(`\d+`)
+	find := reg.FindAllString(strint, -1)
+	if len(find) < 1 {
+		return ""
+	}
+	if len(find) <= index {
+		return ""
+	}
+	return find[index]
 }
