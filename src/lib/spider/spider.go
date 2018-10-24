@@ -65,6 +65,12 @@ func HashMap(data map[string]string) map[string]string {
 	return retMap
 }
 
+//根据链接获取hash的KEY
+func HashKey(str string) string {
+	md5Int := md5.Sum([]byte(str))
+	return fmt.Sprintf("%x", md5Int)
+}
+
 //HTMl标签转小写
 func TagToLower(con string) string {
 	reg, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
@@ -302,4 +308,10 @@ func PickInt(str string, index int) string {
 		return ""
 	}
 	return find[index]
+}
+
+//去掉引号
+func StripQuotation(str string) string {
+	strTmp := strings.Replace(str, `'`, ``, -1)
+	return strings.Replace(strTmp, `"`, ``, -1)
 }
