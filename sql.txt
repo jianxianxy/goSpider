@@ -1,0 +1,17 @@
+CREATE TABLE `realty` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `title` varchar(64) NOT NULL DEFAULT '' COMMENT '标题',
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '小区',
+  `pos_1` varchar(64) NOT NULL DEFAULT '' COMMENT '地区',
+  `pos_2` varchar(64) NOT NULL DEFAULT '' COMMENT '街道',
+  `style` varchar(32) NOT NULL DEFAULT '' COMMENT '格局',
+  `area` varchar(32) NOT NULL DEFAULT '' COMMENT '面积',
+  `layer` varchar(32) NOT NULL DEFAULT '' COMMENT '楼层',
+  `extra` varchar(64) NOT NULL DEFAULT '' COMMENT '其他',
+  `price` int(11) NOT NULL DEFAULT '0' COMMENT '价格',
+  `price_m2` int(11) NOT NULL DEFAULT '0' COMMENT '每平价格',
+  `from` tinyint(4) NOT NULL DEFAULT '1' COMMENT '来源',
+  `create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+  `href` varchar(255) DEFAULT '' COMMENT '地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8;
