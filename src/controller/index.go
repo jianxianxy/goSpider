@@ -22,7 +22,11 @@ func Search() {
 	que := &spider.Queue{}
 	que.StacksA = make(map[string]string)
 	que.StacksB = make(map[string]string)
-	urlMap := map[string]string{spider.HashKey("/house-a013051/"): "/house-a013051/"}
+	urlMap := make(map[string]string)
+	//开发区
+	urlMap[spider.HashKey("/house-a013051/")] = "/house-a013051/"
+	//双桥区
+	urlMap[spider.HashKey("/house-a011438/")] = "/house-a011438/"
 	que.QueueInsert(urlMap)
 	//开始循环
 	for {
@@ -30,6 +34,7 @@ func Search() {
 		if turl != "" {
 			curUrl := urlHttp + turl
 			fangCom(curUrl, que)
+			time.Sleep(time.Duration(2) * time.Second)
 		} else {
 			break
 		}
