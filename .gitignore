@@ -4,3 +4,4 @@ html/
 .idea/
 bin/
 pkg/
+server
