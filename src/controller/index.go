@@ -86,6 +86,9 @@ func fangCom(url string, que *spider.Queue) {
 		posHt := spider.FindByIC(v, "p", ".add_shop")
 		name := spider.FindByIC(posHt, "a", "")
 		colTb["name"] = spider.TrimSpace(spider.GetText(name))
+		if colTb["name"] == "" {
+			continue
+		}
 		rute := spider.FindByIC(posHt, "span", "")
 		ruteArr := strings.Split(spider.TrimSpace(spider.GetText(rute)), "-")
 		for rk, rv := range ruteArr {
