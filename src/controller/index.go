@@ -42,10 +42,16 @@ func Search() {
 	fmt.Println("结束")
 }
 
-func fangCom(url string, que *spider.Queue) {
+func fangCom(url string, que *spider.Queue) int {
 	b_Time := time.Now()
 
-	html, _ := spider.GetHtmlByUrl(url)
+	//获取url内容
+	//html, err := spider.GetHtmlByUrl(url)
+	html, err := spider.GetHtmlByUrlTimeLimit(url)
+	if err != nil {
+		fmt.Println("访问受限", err, url)
+		return 0
+	}
 	html = spider.ConvertToString(html, "gbk", "utf-8")
 
 	//分页信息
@@ -110,12 +116,13 @@ func fangCom(url string, que *spider.Queue) {
 		}
 		colTb["price_m2"] = spider.PickInt(spider.GetText(pricem2), 0)
 		//插入数据库
-		iin := insertRow("realty", colTb)
-		fmt.Println(iin)
+		insertRow("realty", colTb)
+		//iin := insertRow("realty", colTb)
 	}
-
+	fmt.Println(" ")
 	u_Time := time.Since(b_Time)
 	fmt.Println("用时:", u_Time, "地址:", url)
+	return 1
 }
 
 //插入数据库

@@ -2,12 +2,14 @@ package spider
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"lib/mahonia"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 //根据url获取页面相关信息
@@ -39,6 +41,32 @@ func GetHtmlByUrl(url string) (str string, err error) {
 	defer response.Body.Close()
 	body, _ := ioutil.ReadAll(response.Body)
 	return string(body), nil
+}
+
+//获取URL内容-超时
+func GetHtmlByUrlTimeLimit(url string) (str string, err error) {
+	chanUrl := make(chan string) //Get进程
+	timeOut := make(chan string) //超时设置
+	go func() {
+		time.Sleep(time.Duration(30) * time.Second)
+		timeOut <- "超时"
+	}()
+	go func() {
+		response, err := http.Get(url)
+		if err != nil {
+			chanUrl <- "404"
+		} else {
+			defer response.Body.Close()
+			body, _ := ioutil.ReadAll(response.Body)
+			chanUrl <- string(body)
+		}
+	}()
+	select {
+	case back := <-chanUrl:
+		return back, nil
+	case back := <-timeOut: //请求超时
+		return back, errors.New("TimeOut")
+	}
 }
 
 //从字符串中提取超链接
