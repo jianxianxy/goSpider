@@ -15,3 +15,9 @@ CREATE TABLE `realty` (
   `href` varchar(255) DEFAULT '' COMMENT 'µØÖ·',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8;
+
+
+
+DELETE FROM realty WHERE `name` = ""
+DELETE FROM realty WHERE `create` > '2018-11-06'
+SELECT `day`,COUNT(`day`) FROM (SELECT DATE_FORMAT(`create`,"%Y%m%d") AS `day` FROM `realty`) tbday GROUP BY `day`
