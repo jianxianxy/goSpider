@@ -18,5 +18,5 @@ go build server.go
 
 export GOPATH="$OLDGOPATH"
 
-echo 'Server Start ...'
+echo 'Build finish ...'
 #./server

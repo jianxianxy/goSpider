@@ -34,7 +34,7 @@ func Search() {
 		if turl != "" {
 			curUrl := urlHttp + turl
 			fangCom(curUrl, que)
-			time.Sleep(time.Duration(2) * time.Second)
+			time.Sleep(time.Duration(10) * time.Second)
 		} else {
 			break
 		}
@@ -127,6 +127,24 @@ func fangCom(url string, que *spider.Queue) int {
 
 //插入数据库
 func insertRow(table string, data map[string]interface{}) int {
+	signKey := spider.HashKey(data["title"].(string) + data["area"].(string))
+	data["signkey"] = signKey
+	have := isHave(signKey)
+	if have == false {
+		mysql := config.DbSpider()
+		return mysql.Insert(table, data)
+	}
+	return 0
+}
+
+//查询是否可以插入
+func isHave(signKey string) bool {
+	date := time.Now().Format("2006-01-02")
+	sel := "SELECT `id` FROM `realty` WHERE `signkey` = '" + signKey + "' AND `create`  > '" + date + "'"
 	mysql := config.DbSpider()
-	return mysql.Insert(table, data)
+	col := mysql.GetRow(sel)
+	if len(col) > 0 {
+		return true
+	}
+	return false
 }
