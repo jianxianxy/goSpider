@@ -9,10 +9,12 @@ import (
 
 func main() {
 	analy()
+	//analyData("2018-12-03","2018-12-04")
 }
 
 func analy() {
-	sel := "SELECT `day`,COUNT(`day`) AS num FROM (SELECT DATE_FORMAT(`create`,'%Y-%m-%d') AS `day` FROM `realty`) tbday GROUP BY `day` ORDER BY `day` ASC"
+	limno := 31
+	sel := "SELECT `day`,COUNT(`day`) AS num FROM (SELECT DATE_FORMAT(`create`,'%Y-%m-%d') AS `day` FROM `realty`) tbday GROUP BY `day` ORDER BY `day` DESC LIMIT 0," + limno
 	mysql := config.DbSpider()
 	cols := mysql.GetRow(sel)
 	var preDay string
@@ -26,6 +28,8 @@ func analy() {
 		}
 	}
 }
+
+//是否需要处理
 func analyNeed(day string) bool {
 	sel := "SELECT `id` FROM `data_chart` WHERE `anday` = '" + day + "'"
 	mysql := config.DbSpider()
@@ -72,6 +76,7 @@ func analyData(preDay, curDay string) {
 	fmt.Println(curDay, res)
 }
 
+//获取后天的数据
 func analyDay(day string) map[string]string {
 	sel := "SELECT `id`,`signkey` FROM `realty` WHERE DATE_FORMAT(`create`,'%Y-%m-%d') = '" + day + "'"
 	mysql := config.DbSpider()
@@ -85,6 +90,7 @@ func analyDay(day string) map[string]string {
 	return dmp
 }
 
+//是否售出
 func analySale(signkey, day string) bool {
 	sel := "SELECT * FROM realty WHERE signkey = '" + signkey + "' AND DATE_FORMAT(`create`,'%Y-%m-%d') > '" + day + "'"
 	mysql := config.DbSpider()
@@ -95,6 +101,8 @@ func analySale(signkey, day string) bool {
 		return true
 	}
 }
+
+//是否新增
 func analyNew(signkey, day string) bool {
 	sel := "SELECT * FROM realty WHERE signkey = '" + signkey + "' AND DATE_FORMAT(`create`,'%Y-%m-%d') < '" + day + "'"
 	mysql := config.DbSpider()
@@ -103,33 +111,5 @@ func analyNew(signkey, day string) bool {
 		return false
 	} else {
 		return true
-	}
-}
-
-func pefData() {
-	sel := "SELECT `id`,`title`,`area`,DATE_FORMAT(`create`,'%Y-%m-%d') AS `create`  FROM `realty` WHERE `signkey` = '' ORDER BY `id` ASC LIMIT 0,30000"
-	mysql := config.DbSpider()
-	cols := mysql.GetRow(sel)
-	if len(cols) > 0 {
-		for _, val := range cols {
-			pefCol(val)
-		}
-	}
-}
-func pefCol(data map[string]string) {
-	where := make(map[string]interface{})
-	where["id"] = data["id"]
-	signKey := spider.HashKey(string(data["title"]) + string(data["area"]))
-	upcol := make(map[string]interface{})
-	upcol["signkey"] = signKey
-	sel := "SELECT `id` FROM `realty` WHERE `signkey` = '" + signKey + "' AND DATE_FORMAT(`create`,'%Y-%m-%d') = '" + string(data["create"]) + "'"
-	mysql := config.DbSpider()
-	col := mysql.GetRow(sel)
-	if len(col) > 0 {
-		mysql.Remove("realty", where)
-		fmt.Println("删除:", data["id"])
-	} else {
-		mysql.Update("realty", upcol, where)
-		fmt.Println("更新:", data["id"])
 	}
 }
