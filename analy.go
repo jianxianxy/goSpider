@@ -13,7 +13,15 @@ var (
 	mod = flag.String("mod", "", "Run model.")
 	// -day 2018-11-01
 	anday = flag.String("day", "", "Analy The Day.")
+	//-mod price -day 2018-11
 )
+
+type Fang struct {
+	Name  string
+	Area  string
+	Price string
+	Day   string
+}
 
 func main() {
 	flag.Parse() //完成数据绑定
@@ -21,10 +29,13 @@ func main() {
 	mod := *mod
 	if mod == "all" {
 		analy()
+	} else if mod == "price" && day != "" {
+		analyPrice(day)
+	} else if mod == "day" && day != "" {
+		analyData(day)
 	} else if day != "" {
 		analySaleInfo(day)
 	}
-	//analyData("2018-12-03")
 }
 
 //全部分析
@@ -151,6 +162,62 @@ func analySaleInfo(day string) {
 		}
 	}
 	fmt.Println("处理完成：", day)
+}
+
+//价格分析
+func analyPrice(month string) {
+	sel := "SELECT DISTINCT signkey FROM `realty` WHERE DATE_FORMAT(`create`,'%Y-%m') = '" + month + "' LIMIT 0,10000"
+	mysql := config.DbSpider()
+	all := mysql.GetRow(sel)
+	if len(all) > 0 {
+		for _, val := range all {
+			getChangePrice(val["signkey"])
+		}
+	}
+	fmt.Println(".")
+	fmt.Println("处理完成：", month)
+}
+
+//获取价格
+func getChangePrice(signkey string) {
+	prcMap := make(map[string]interface{})
+	sel := "SELECT `price`,`name`,`area`,DATE_FORMAT(`create`,'%Y-%m-%d') AS `day` FROM `realty` WHERE signkey = '" + signkey + "' ORDER BY `day` ASC"
+	mysql := config.DbSpider()
+	all := mysql.GetRow(sel)
+	if len(all) > 0 {
+		for _, val := range all {
+			if _, has := prcMap[val["price"]]; !has {
+				prcMap[val["price"]] = Fang{Name: val["name"], Area: val["area"], Price: val["price"], Day: val["day"]}
+			}
+		}
+	}
+	if len(prcMap) > 1 {
+		for _, info := range prcMap {
+			data := make(map[string]interface{})
+			data["signkey"] = signkey
+			data["name"] = info.(Fang).Name
+			data["area"] = info.(Fang).Area
+			data["price"] = info.(Fang).Price
+			data["day"] = info.(Fang).Day
+			if needUpPrice(signkey, info.(Fang).Day) {
+				mysql := config.DbSpider()
+				mysql.Insert("data_price", data)
+			}
+		}
+	}
+	fmt.Print(".")
+}
+
+//是否需要更新价格流水
+func needUpPrice(signkey, day string) bool {
+	sel := "SELECT `id` FROM `data_price` WHERE `signkey` = '" + signkey + "' AND `day` = '" + day + "'"
+	mysql := config.DbSpider()
+	row := mysql.GetRow(sel)
+	if len(row) < 1 {
+		return true
+	} else {
+		return false
+	}
 }
 
 //上架时间
