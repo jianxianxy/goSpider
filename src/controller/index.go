@@ -40,7 +40,9 @@ func Search() {
 		}
 	}
 	fmt.Println("结束")
-	fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+	timeNow := time.Now().Format("2006-01-02 15:04:05")
+	fmt.Println(timeNow)
+	spider.WriteFile("run.log", timeNow)
 }
 
 func fangCom(url string, que *spider.Queue) int {

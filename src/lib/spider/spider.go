@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"lib/mahonia"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -342,4 +343,11 @@ func PickInt(str string, index int) string {
 func StripQuotation(str string) string {
 	strTmp := strings.Replace(str, `'`, ``, -1)
 	return strings.Replace(strTmp, `"`, ``, -1)
+}
+
+func WriteFile(file, content string) {
+	handle, _ := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	conBuf := []byte(content + "\n")
+	handle.Write(conBuf)
+	handle.Close()
 }

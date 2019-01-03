@@ -1,19 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"config"
-	"flag"
 	"fmt"
+	"os"
 	"strings"
 	"time"
-)
-
-var (
-	//-mod all
-	mod = flag.String("mod", "", "Run model.")
-	// -day 2018-11-01
-	anday = flag.String("day", "", "Analy The Day.")
-	//-mod price -day 2018-11
 )
 
 type Fang struct {
@@ -24,17 +17,46 @@ type Fang struct {
 }
 
 func main() {
-	flag.Parse() //完成数据绑定
-	day := *anday
-	mod := *mod
-	if mod == "all" {
-		analy()
-	} else if mod == "price" && day != "" {
-		analyPrice(day)
-	} else if mod == "day" && day != "" {
-		analyData(day)
-	} else if day != "" {
-		analySaleInfo(day)
+Loop:
+	tips := "选择模式:price[价格分析],hot[热度分析],sale[销售分析]"
+	fmt.Println(tips)
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		switch input.Text() {
+		case "price":
+			fmt.Print("输入时间（例:2018-12）:")
+			day := bufio.NewScanner(os.Stdin)
+			for day.Scan() {
+				if day.Text() != "exit" {
+					analyPrice(day.Text())
+				} else {
+					goto Loop
+				}
+				fmt.Print("输入时间（例:2018-12）:")
+			}
+		case "hot":
+			fmt.Print("输入时间（例:2018-12-01）:")
+			day := bufio.NewScanner(os.Stdin)
+			for day.Scan() {
+				if day.Text() != "exit" {
+					analyData(day.Text())
+				} else {
+					goto Loop
+				}
+				fmt.Print("输入时间（例:2018-12-01）:")
+			}
+		case "sale":
+			fmt.Print("输入时间（例:2018-12-01）:")
+			day := bufio.NewScanner(os.Stdin)
+			for day.Scan() {
+				if day.Text() != "exit" {
+					analySaleInfo(day.Text()) //销售分析
+				} else {
+					goto Loop
+				}
+				fmt.Print("输入时间（例:2018-12-01）:")
+			}
+		}
 	}
 }
 
@@ -79,6 +101,7 @@ func getPreDay(curDay string) string {
 	return preDay
 }
 
+//热度分析
 func analyData(curDay string) {
 	curData := dataByDay(curDay)
 	//售出 && 新增
