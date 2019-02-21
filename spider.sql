@@ -1,7 +1,3 @@
-﻿USE `spider_db`;
-
-/*Table structure for table `data_chart` */
-
 DROP TABLE IF EXISTS `data_chart`;
 
 CREATE TABLE `data_chart` (
@@ -12,7 +8,7 @@ CREATE TABLE `data_chart` (
   `bare` int(11) NOT NULL COMMENT '净差',
   `info` text NOT NULL COMMENT '详细json',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `data_price` */
 
@@ -26,7 +22,7 @@ CREATE TABLE `data_price` (
   `area` varchar(32) DEFAULT NULL COMMENT '面积',
   `price` float DEFAULT NULL COMMENT '价格',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=93 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `data_sale` */
 
@@ -43,7 +39,7 @@ CREATE TABLE `data_sale` (
   `area` float NOT NULL COMMENT '面积',
   `price` int(11) NOT NULL COMMENT '价格',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=784 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Table structure for table `realty` */
 
@@ -64,6 +60,9 @@ CREATE TABLE `realty` (
   `from` tinyint(4) NOT NULL DEFAULT '1' COMMENT '来源',
   `signkey` varchar(64) NOT NULL DEFAULT '' COMMENT '唯一标识',
   `create` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+  `houseid` int(11) DEFAULT '0' COMMENT '标识ID',
+  `agentid` int(11) DEFAULT '0' COMMENT '客户ID',
+  `housetype` varchar(32) DEFAULT '' COMMENT '类型',
   `href` varchar(255) DEFAULT '' COMMENT '地址',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51633 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1666 DEFAULT CHARSET=utf8;

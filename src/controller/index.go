@@ -2,6 +2,7 @@ package controller
 
 import (
 	"config"
+	"encoding/json"
 	"fmt"
 	"lib/spider"
 	"strings"
@@ -13,6 +14,13 @@ type pageSeg struct {
 	Title string
 	Url   string
 	Seg   map[string]int
+}
+
+type FangInfo struct {
+	Houseid     interface{} `json:"houseid"`
+	Agentid     interface{} `json:"agentid"`
+	Housetype   interface{} `json:"housetype"`
+	Listingtype interface{} `json:"listingtype"`
 }
 
 //搜索
@@ -118,6 +126,15 @@ func fangCom(url string, que *spider.Queue) int {
 			pricem2 = pricem2Hm[1]
 		}
 		colTb["price_m2"] = spider.PickInt(spider.GetText(pricem2), 0)
+		//属性
+		fangJson := spider.GetFangInfo(v)
+		finfo := FangInfo{}
+		err := json.Unmarshal([]byte(fangJson), &finfo)
+		if err == nil {
+			colTb["houseid"] = finfo.Houseid
+			colTb["agentid"] = finfo.Agentid
+			colTb["housetype"] = finfo.Housetype
+		}
 		//插入数据库
 		insertRow("realty", colTb)
 		//iin := insertRow("realty", colTb)
@@ -130,7 +147,7 @@ func fangCom(url string, que *spider.Queue) int {
 
 //插入数据库
 func insertRow(table string, data map[string]interface{}) int {
-	signKey := spider.HashKey(data["title"].(string) + data["area"].(string))
+	signKey := spider.HashKey(data["houseid"].(string))
 	data["signkey"] = signKey
 	have := isHave(signKey)
 	if have == false {

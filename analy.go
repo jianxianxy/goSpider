@@ -18,7 +18,7 @@ type Fang struct {
 
 func main() {
 Loop:
-	tips := "选择模式:price[价格分析],hot[热度分析],sale[销售分析]"
+	tips := "选择模式:price[价格分析~月],auto[热的&销售~月],hot[热度分析~日],sale[销售分析~日]"
 	fmt.Println(tips)
 	input := bufio.NewScanner(os.Stdin)
 	for input.Scan() {
@@ -56,13 +56,24 @@ Loop:
 				}
 				fmt.Print("输入时间（例:2018-12-01）:")
 			}
+		case "auto":
+			fmt.Print("输入时间（例:2018-12）:")
+			day := bufio.NewScanner(os.Stdin)
+			for day.Scan() {
+				if day.Text() != "exit" {
+					analy(day.Text())
+				} else {
+					goto Loop
+				}
+				fmt.Print("输入时间（例:2018-12）:")
+			}
 		}
 	}
 }
 
 //全部分析
-func analy() {
-	sel := "SELECT `day`,COUNT(`day`) AS num FROM (SELECT DATE_FORMAT(`create`,'%Y-%m-%d') AS `day` FROM `realty`) tbday GROUP BY `day` ORDER BY `day` ASC"
+func analy(month string) {
+	sel := "SELECT `day`,COUNT(`day`) AS num FROM (SELECT DATE_FORMAT(`create`,'%Y-%m-%d') AS `day` FROM `realty` WHERE DATE_FORMAT(`create`,'%Y-%m') = '" + month + "') tbday GROUP BY `day` ORDER BY `day` ASC"
 	mysql := config.DbSpider()
 	cols := mysql.GetRow(sel)
 	if len(cols) > 0 {
@@ -70,6 +81,7 @@ func analy() {
 			curDay := val["day"]
 			if analyNeed(curDay) {
 				analyData(curDay)
+				analySaleInfo(curDay)
 			}
 		}
 	}

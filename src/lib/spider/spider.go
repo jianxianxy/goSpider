@@ -351,3 +351,11 @@ func WriteFile(file, content string) {
 	handle.Write(conBuf)
 	handle.Close()
 }
+
+//获取属性
+func GetFangInfo(con string) string {
+	con = strings.Replace(con, `&quot;`, `"`, -1)
+	reg, _ := regexp.Compile(`<dl[^>]*(\{.*\})[^>]*>`)
+	match := reg.FindAllStringSubmatch(con, -1)
+	return match[0][1]
+}
