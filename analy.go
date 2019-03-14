@@ -80,8 +80,8 @@ func analy(month string) {
 		for _, val := range cols {
 			curDay := val["day"]
 			if analyNeed(curDay) {
-				analyData(curDay)
-				analySaleInfo(curDay)
+				analyData(curDay)     //热度
+				analySaleInfo(curDay) //销售
 			}
 		}
 	}
@@ -182,8 +182,7 @@ func analyNew(signkey, day string) bool {
 func analySaleInfo(day string) {
 	curData := dataByDay(day)
 	for key, val := range curData {
-		if analySale(key, day) {
-			fmt.Println(key, day)
+		if needAnalySale(val) && analySale(key, day) {
 			onSale := saleStart(key)
 			dayInt := timeSub(onSale, day)
 			info := rowInfo(val)
@@ -197,6 +196,18 @@ func analySaleInfo(day string) {
 		}
 	}
 	fmt.Println("处理完成：", day)
+}
+
+//是否统计过
+func needAnalySale(val string) bool {
+	sel := "SELECT id FROM data_sale WHERE rea_id = " + val
+	mysql := config.DbSpider()
+	row := mysql.GetRow(sel)
+	if len(row) > 0 {
+		return false
+	} else {
+		return true
+	}
 }
 
 //价格分析
